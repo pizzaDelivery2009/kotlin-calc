@@ -8,9 +8,6 @@ A simple, good-looking calculator that works right in your browser. No install, 
 
 ## 👉 [**Open the Calculator**](https://pizzadelivery2009.github.io/kotlin-calc/) 👈
 
-[![Open Calculator](https://img.shields.io/badge/Open%20Calculator-Click%20here-ff9500?style=for-the-badge)](https://pizzadelivery2009.github.io/kotlin-calc/)
-
-<sub>Link: https://pizzadelivery2009.github.io/kotlin-calc/</sub>
 
 </div>
 
