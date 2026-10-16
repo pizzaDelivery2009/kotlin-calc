@@ -3,6 +3,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,22 +21,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 
-fun main() = application {
-
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = "My Calculator"
-    ) {
-        MaterialTheme {
-            Calculator()
-        }
-    }
-}
 
 @Composable
 fun Calculator() {
@@ -195,7 +190,7 @@ fun Calculator() {
                 )
 
                 CalculatorButton(
-                    text = "⌫",
+                    icon = { BackspaceIcon() },
                     modifier = Modifier.weight(1f),
                     backgroundColor = Color(90, 90, 90),
                     onClick = { deleteLast() }
@@ -241,7 +236,7 @@ fun Calculator() {
                 )
 
                 CalculatorButton(
-                    text = "−",
+                    text = "-",
                     modifier = Modifier.weight(1f),
                     backgroundColor = Color(255, 149, 0),
                     onClick = { chooseOperation("-") }
@@ -340,9 +335,10 @@ fun Calculator() {
 
 @Composable
 fun CalculatorButton(
-    text: String,
+    text: String = "",
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color(55, 55, 55),
+    icon: (@Composable () -> Unit)? = null,
     onClick: () -> Unit
 ) {
 
@@ -350,17 +346,22 @@ fun CalculatorButton(
         onClick = onClick,
         modifier = modifier.height(60.dp),
         shape = RoundedCornerShape(18.dp),
+        contentPadding = PaddingValues(0.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor
         )
     ) {
 
-        Text(
-            text = text,
-            fontSize = 23.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color.White
-        )
+        if (icon != null) {
+            icon()
+        } else {
+            Text(
+                text = text,
+                fontSize = 23.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White
+            )
+        }
     }
 }
 
@@ -370,5 +371,42 @@ fun formatNumber(number: Double): String {
         number.toLong().toString()
     } else {
         number.toString()
+    }
+}
+
+@Composable
+fun BackspaceIcon(
+    color: Color = Color.White,
+    width: Dp = 34.dp
+) {
+    Canvas(modifier = Modifier.size(width = width, height = width * 0.772f)) {
+        val s = minOf(size.width / 447f, size.height / 345f)
+        val offsetX = (size.width - 447f * s) / 2f
+        val offsetY = (size.height - 345f * s) / 2f
+        fun p(x: Float, y: Float) = Offset(offsetX + x * s, offsetY + (y - 50f) * s)
+
+        val strokeWidth = 28f * s
+
+        val outline = Path().apply {
+            moveTo(p(125f, 70f).x, p(125f, 70f).y)
+            lineTo(p(427f, 70f).x, p(427f, 70f).y)
+            lineTo(p(427f, 375f).x, p(427f, 375f).y)
+            lineTo(p(125f, 375f).x, p(125f, 375f).y)
+            lineTo(p(20f, 222f).x, p(20f, 222f).y)
+            close()
+        }
+
+        drawPath(
+            path = outline,
+            color = color,
+            style = Stroke(
+                width = strokeWidth,
+                cap = StrokeCap.Round,
+                join = StrokeJoin.Round
+            )
+        )
+
+        drawLine(color, p(205f, 172f), p(305f, 272f), strokeWidth, StrokeCap.Round)
+        drawLine(color, p(305f, 172f), p(205f, 272f), strokeWidth, StrokeCap.Round)
     }
 }

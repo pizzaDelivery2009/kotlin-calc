@@ -1,46 +1,52 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
-    kotlin("jvm") version "2.4.0"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.4.0"
+    kotlin("multiplatform") version "2.2.20"
     id("org.jetbrains.compose") version "1.9.0"
-}
-
-group = "org.example"
-version = "1.0-SNAPSHOT"
-
-repositories {
-    mavenCentral()
-    google()
-    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-}
-
-dependencies {
-    testImplementation(kotlin("test"))
-    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
-    implementation(compose.desktop.currentOs)
-    implementation(compose.runtime)
-    implementation(compose.foundation)
-    implementation(compose.material3)
-    implementation(compose.ui)
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.20"
 }
 
 kotlin {
-    jvmToolchain(26)
-}
+    jvm("desktop")
 
-compose.desktop {
-    application {
-        mainClass = "CalcKt"
-        nativeDistributions {
-            targetFormats(TargetFormat.Msi, TargetFormat.Dmg, TargetFormat.Deb)
-            packageName = "MyCalculator"
-            packageVersion = "1.0.0"
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        outputModuleName = "calculator"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "calculator.js"
+            }
+        }
+        binaries.executable()
+    }
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            implementation(compose.components.resources)
+        }
+        val desktopMain by getting
+        desktopMain.dependencies {
+            implementation(compose.desktop.currentOs)
         }
     }
 }
 
-tasks.test {
-    useJUnitPlatform()
+compose.resources {
+    packageOfResClass = "calculator.resources"
+}
+
+compose.desktop {
+    application {
+        mainClass = "MainKt"
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi)
+            packageName = "MyCalculator"
+            packageVersion = "1.0.0"
+        }
+    }
 }
