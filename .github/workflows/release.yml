@@ -15,11 +15,11 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            artifact: macos
-            files: build/compose/binaries/main/dmg/*.dmg
+            ext: dmg
+            label: macOS-AppleSilicon
           - os: windows-2022
-            artifact: windows
-            files: build/compose/binaries/main/msi/*.msi
+            ext: msi
+            label: Windows
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -35,10 +35,18 @@ jobs:
           chmod +x gradlew
           ./gradlew packageDistributionForCurrentOS
 
+      - name: Rename installer
+        shell: bash
+        run: |
+          cd build/compose/binaries/main/${{ matrix.ext }}
+          for f in *.${{ matrix.ext }}; do
+            mv "$f" "MyCalculator-${{ matrix.label }}.${{ matrix.ext }}"
+          done
+
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: ${{ matrix.files }}
+          name: ${{ matrix.label }}
+          path: build/compose/binaries/main/${{ matrix.ext }}/MyCalculator-${{ matrix.label }}.${{ matrix.ext }}
 
   release:
     needs: build
@@ -53,3 +61,14 @@ jobs:
         with:
           files: dist/*
           generate_release_notes: true
+          body: |
+            ## Which file should I download?
+
+            - **Mac (M1, M2, M3 or newer):** `MyCalculator-macOS-AppleSilicon.dmg`
+            - **Windows:** `MyCalculator-Windows.msi`
+
+            You can also use the calculator in your browser without installing anything: https://pizzadelivery2009.github.io/kotlin-calc/
+
+            **First launch warnings (the app is not code-signed):**
+            - Mac: right-click the app, choose **Open**, then confirm.
+            - Windows: click **More info, then Run anyway**.
