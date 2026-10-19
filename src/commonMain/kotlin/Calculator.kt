@@ -39,6 +39,7 @@ fun Calculator() {
     var firstNumber by remember { mutableStateOf<Double?>(null) }
     var operation by remember { mutableStateOf<String?>(null) }
     var shouldResetDisplay by remember { mutableStateOf(false) }
+    var expression by remember { mutableStateOf("") }
 
     fun inputNumber(number: String) {
 
@@ -65,6 +66,10 @@ fun Calculator() {
         firstNumber = display.toDoubleOrNull()
         operation = newOperation
         shouldResetDisplay = true
+
+        firstNumber?.let {
+            expression = "${formatNumber(it)} ${operationSymbol(newOperation)}"
+        }
     }
 
     fun calculate() {
@@ -72,6 +77,8 @@ fun Calculator() {
         val secondNumber = display.toDoubleOrNull()
 
         if (firstNumber != null && secondNumber != null && operation != null) {
+
+            expression = "${formatNumber(firstNumber!!)} ${operationSymbol(operation!!)} ${formatNumber(secondNumber)} ="
 
             val result = when (operation) {
 
@@ -110,6 +117,7 @@ fun Calculator() {
         firstNumber = null
         operation = null
         shouldResetDisplay = false
+        expression = ""
     }
 
     fun deleteLast() {
@@ -164,14 +172,25 @@ fun Calculator() {
                 contentAlignment = Alignment.BottomEnd
             ) {
 
-                Text(
-                    text = display,
-                    color = Color.White,
-                    fontSize = 42.sp,
-                    fontWeight = FontWeight.Light,
-                    maxLines = 1,
-                    textAlign = TextAlign.End
-                )
+                Column(horizontalAlignment = Alignment.End) {
+
+                    Text(
+                        text = expression.ifEmpty { " " },
+                        color = Color.Gray,
+                        fontSize = 18.sp,
+                        maxLines = 1,
+                        textAlign = TextAlign.End
+                    )
+
+                    Text(
+                        text = display,
+                        color = Color.White,
+                        fontSize = 42.sp,
+                        fontWeight = FontWeight.Light,
+                        maxLines = 1,
+                        textAlign = TextAlign.End
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -362,6 +381,15 @@ fun CalculatorButton(
                 color = Color.White
             )
         }
+    }
+}
+
+fun operationSymbol(operation: String): String {
+
+    return when (operation) {
+        "/" -> "÷"
+        "*" -> "×"
+        else -> operation
     }
 }
 
