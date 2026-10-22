@@ -46,7 +46,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi)
             packageName = "MyCalculator"
-            packageVersion = "1.0.0"
+            packageVersion = "1.2.0"
         }
     }
 }
